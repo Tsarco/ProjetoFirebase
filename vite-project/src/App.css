@@ -16,6 +16,8 @@
 .container{
     max-width: 500px;
     background-color: gray;
+    border-radius: 10px;
+    padding: 10px;
 }
 
 .header{
@@ -25,7 +27,6 @@
 .form{
   display: flex;
   justify-content: between;
-
 }
 
 .input{
@@ -39,5 +40,43 @@
 }
 
 .contagem{
-  align-text: center;
+  display: flex;
+  align-items: center;
+}
+
+.itens{
+  display: flex;
+  background-color: aliceblue;
+}
+
+.itensCompletado{
+  display: flex;
+  background-color: blue;
+}
+
+ul{
+  padding: 0;
+  margin: 0;
+  width: 90%;
+  align-self: flex-end;
+  display: flex;
+  flex-direction: column;
+  row-gap: 15px;
+}
+
+.linha{
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.texto{
+  color: black;
+  font-size: 1.2em;
+}
+
+.textoCompletado{
+  color: red;
+  text-decoration: line-through;
+  font-size: 1.2em;
 }

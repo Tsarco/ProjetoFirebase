@@ -1,75 +1,95 @@
 import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import './navbar.jsx'
-import Navbar from './navbar.jsx'
 import { db } from './firebase.js'
-import {query, collection, onSnapshot} from 'firebase/firestore'
-import Comida from './components/comida.jsx'
+import {query, collection, onSnapshot, updateDoc, doc, addDoc, deleteDoc} from 'firebase/firestore'
 import Tarefas from './components/Tarefas.jsx'
 
 function App() {
-  const [tarefas, setTarefas] = useState(['Azul', 'Vermelho'])
+  const [tarefas, setTarefas] = useState([])
+  const [entrada, setEntrada] = useState('')
+  console.log(entrada)
+  const criarTarefa = async (e) => {
+    e.preventDefault(e); //cria database 'tarefas' firebase caso ela não existir ainda 
+    if(entrada === ''){
+      alert("Por favor, insira uma tarefa válida.")
+      return //esse return faz com que o código continue rodando
+    }
 
-  // //Ler dados do Firebase
-  // useEffect(() => {
-  //   const caminhoFirebase = query(collection(db, 'restaplate'))
-  //   const snapshotDaDatabase = onSnapshot(caminhoFirebase, (querySnapshot) =>{
-  //     let restaArray = []
-  //     querySnapshot.forEach((doc) => {
-  //       restaArray.push({...doc.data(), id: doc.id})
-  //     });
-  //     console.log("Dados do Firebase:", restaArray)
-  //     setRestaplate(restaArray)
-  //   })
-  //   return () => snapshotDaDatabase()
-  // }, [])
+    await addDoc(collection(db, 'tarefas'), {
+      tarefa: entrada,
+      completada: false,    
+    })
+    setEntrada('') //esvazia o input
+  }
+
+  //Ler dados do Firebase
+   useEffect(() => {
+     const caminhoFirebase = query(collection(db, 'tarefas'))
+     const snapshotDaDatabase = onSnapshot(caminhoFirebase, (querySnapshot) =>{
+       let tarefasArray = []
+       querySnapshot.forEach((doc) => {
+         tarefasArray.push({...doc.data(), id: doc.id})
+       });
+       console.log("Dados do Firebase:", tarefasArray)
+       setTarefas(tarefasArray)
+     })
+     return () => snapshotDaDatabase()
+ }, [])
+
+  const checarCompletada = async (tarefa) => {
+    console.log("Função checarCompletada chamada para tarefa:", tarefa);
+    try {
+      await updateDoc(doc(db, 'tarefas', tarefa.id), {
+        completada: !tarefa.completada 
+      });
+      console.log(`Tarefa ${tarefa.id} atualizada com sucesso.`);
+    } catch (error) {
+      console.error("Erro ao atualizar a tarefa:", error);
+    }
+  };
+
+  // DELETAR TAREFA
+
+  const deletarTarefa = async (id) => {
+    await deleteDoc(doc(db, 'tarefas', id))
+  }
+
 
   return (
     <>
       <div className="background">
         <div className="container">
         <h3 className="header"> Aplicativo de Tarefas</h3>
-        <form className="form">
-          <input className="input" type="text" placeholder="Adicionar Tarefa"/>
+        <form onSubmit={criarTarefa} className="form">
+          <input 
+            value={entrada} 
+            onChange={(e) => setEntrada(e.target.value)} 
+            className="input" 
+            type="text" 
+            placeholder="Adicionar Tarefa"
+          />
           <button className="button">Icone</button>
         </form>
         
         <ul>
           {tarefas.map((tarefa, index) => (
-            <Tarefas key={index} tarefa={tarefa}/>
+            <Tarefas 
+              key={index} 
+              tarefa={tarefa} 
+              checarCompletada={checarCompletada}
+              deletarTarefa={deletarTarefa}
+            />
           ))}
-    
-        
         </ul>
-        <p className="contagem"> Você tem 2 tarefas</p>
+
+        {tarefas.length < 1 
+          ? null : //se tarefas < 1, n exibir codigo abaixo.
+          <p className="contagem">{`Você tem ${tarefas.length} tarefas para fazer`}</p>
+        }
 
         </div>
       </div>
-
-
-
-
-
-{/* 
-
-  //   
-  //     <Navbar/>
-  
-  //     {/* <ul style={{border: "4px solid red"}}>
-  //       {restaplate.map((comida, index) => {
-  //         console.log("Comida individual:", comida);
-  //         <Comida key={index} nomeComida={comida.nomeComida}/>
-  //       }
-  //       )}
-        
-  //     </ul> 
-       <ul>
-         {restaplate.map((comida, index) => (
-  //         <li key={index}>{comida.nomeComida || "Dado não encontrado"}</li>
-  //       ))}
-  //     </ul>   */}
     </>
   )
 }
