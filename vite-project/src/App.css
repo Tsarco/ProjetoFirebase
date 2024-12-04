@@ -45,6 +45,7 @@
   background-color: white;
   border-radius: 10px;
   transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+  color: black;
 }
 
 .button:hover{
@@ -62,7 +63,8 @@
 .itensCompletado{
   display: flex;
   border-radius: 5px;
-  background-color: ;
+  color: black;
+  background-color: lightgray;
 }
 
 ul{
